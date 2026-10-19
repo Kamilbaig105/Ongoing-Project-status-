@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Engineering &amp; Maintenance – Ongoing Works</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#14202b;--mut:#5d6b78;--line:#e3e7ec;--c:#15803d;--p:#2563eb;--r:#d97706;--s:#7c3aed;--n:#8493a3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1519;--card:#171f25;--fg:#e6edf2;--mut:#93a1ad;--line:#27323a;--c:#34d399;--p:#60a5fa;--r:#fbbf24;--s:#a78bfa;--n:#7c8b9a}}
+:root[data-theme="dark"]{--bg:#0f1519;--card:#171f25;--fg:#e6edf2;--mut:#93a1ad;--line:#27323a;--c:#34d399;--p:#60a5fa;--r:#fbbf24;--s:#a78bfa;--n:#7c8b9a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:1150px;margin:0 auto;padding:18px 14px 40px}
+h1{font-size:21px;margin:0}.sub{color:var(--mut);font-size:13px;margin:2px 0 14px}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));margin-bottom:10px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+.k{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.04em}.v{font-size:21px;font-weight:650;margin-top:0}
+.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--line);margin:8px 0}.bar i{display:block;background:var(--k)}
+.b-Completed{--k:var(--c)}.b-InProgress{--k:var(--p)}.b-UnderReview{--k:var(--r)}.b-Scheduled{--k:var(--s)}.b-Pending{--k:var(--n)}
+.lg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--mut)}.lg span:before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--k);margin-right:5px}
+.dept{cursor:pointer}.dept.on{outline:2px solid var(--p)}.dept h3{margin:0;font-size:14px}.dept .d{font-size:12px;color:var(--mut)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 10px}
+button,input,select{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 11px}
+button{cursor:pointer}button.on{background:var(--p);border-color:var(--p);color:#fff}input{flex:1;min-width:150px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:820px;font-size:13.5px}
+th{text-align:left;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding:8px;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}tr:last-child td{border-bottom:0}
+.badge{display:inline-block;white-space:nowrap;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;color:var(--k);background:color-mix(in srgb,var(--k) 16%,transparent)}
+.mut{color:var(--mut)}details{font-size:13px;color:var(--mut)}summary{cursor:pointer;color:var(--fg)}
+</style></head><body><main>
+<h1>Engineering &amp; Maintenance – Ongoing Works</h1>
+<div class="sub">Departmental project status · status as of <span id="asof"></span></div>
+<div class="grid" id="kpi"></div>
+<div class="card" style="margin-bottom:12px"><div class="k">Overall progress</div><div id="all"></div></div>
+<div class="grid g3" id="depts"></div>
+<div class="ctl" id="ctl"></div>
+<div class="card tw"><table><thead><tr><th>#</th><th>Focus area</th><th>Scope of work</th><th>Status</th><th>Owner</th><th>Remarks &amp; next steps</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="card" style="margin-top:12px"><details><summary>Status definitions</summary><ul>
+<li><b>Completed</b> – task fully executed, approved, or officially established.</li>
+<li><b>In Progress</b> – currently active (drawings, fabrication, quotation review, or civil execution).</li>
+<li><b>Scheduled</b> – confirmed upcoming milestone or stakeholder meeting scheduled.</li>
+<li><b>Under Review</b> – awaiting management review, feasibility sign-off, or budget approval.</li>
+<li><b>Pending</b> – awaiting prerequisites, shutdown schedule, or formal Purchase Order issuance.</li></ul></details></div>
+</main>
+<script src="data.js"></script>
+<script>
+const W=window.WORKS_DATA||{asof:'',tasks:[]},T=W.tasks;
+const ST=['Completed','In Progress','Under Review','Scheduled','Pending'];
+const DP=[{k:'Fiber Bleaching',n:'Fiber Bleaching Line',d:'Capacity extension (target: 1,500 tons)'},{k:'R-Cot Line',n:'R-Cot Department',d:'Upgrades & installations'},{k:'Spunlace Project',n:'Spunlace Project',d:'Production line project'}];
+const $=id=>document.getElementById(id),cl=s=>s.replace(/ /g,'');
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cnt=l=>{const o={};ST.forEach(s=>o[s]=0);l.forEach(t=>o[t.status]++);return o};
+const pct=l=>l.length?Math.round(l.filter(t=>t.status==='Completed').length/l.length*100):0;
+const bar=l=>{const c=cnt(l);return '<div class="bar">'+ST.filter(s=>c[s]).map(s=>'<i class="b-'+cl(s)+'" style="width:'+c[s]/l.length*100+'%" title="'+s+': '+c[s]+'"></i>').join('')+'</div><div class="lg">'+ST.filter(s=>c[s]).map(s=>'<span class="b-'+cl(s)+'">'+s+' '+c[s]+'</span>').join('')+'</div>'};
+let dept='All',stat='All',q='';$('asof').textContent=W.asof;
+(function(){const c=cnt(T),k=(a,b,x)=>'<div class="card"><div class="k">'+a+'</div><div class="v"'+(x?' style="color:var('+x+')"':'')+'>'+b+'</div></div>';
+$('kpi').innerHTML=k('Total tasks',T.length)+k('Completed',c['Completed'],'--c')+k('In progress',c['In Progress'],'--p')+k('Under review',c['Under Review'],'--r')+k('Pending / scheduled',c['Pending']+c['Scheduled'],'--n')+k('% completed',pct(T)+'%');
+$('all').innerHTML=bar(T);
+$('depts').innerHTML=DP.map(p=>{const l=T.filter(t=>t.dept===p.k);return '<div class="card dept" data-d="'+p.k+'"><h3>'+p.n+'</h3><div class="d">'+p.d+' · '+l.length+' tasks · '+pct(l)+'% complete</div>'+bar(l)+'</div>'}).join('');
+$('ctl').innerHTML='<button data-d="All" class="on">All</button>'+DP.map(p=>'<button data-d="'+p.k+'">'+p.n+'</button>').join('')+'<select id="st"><option>All</option>'+ST.map(s=>'<option>'+s+'</option>').join('')+'</select><input id="q" placeholder="Search tasks, owners, remarks…">';
+document.querySelectorAll('[data-d]').forEach(e=>e.onclick=()=>{dept=dept===e.dataset.d&&e.classList.contains('dept')?'All':e.dataset.d;draw()});
+$('st').onchange=e=>{stat=e.target.value;draw()};$('q').oninput=e=>{q=e.target.value.toLowerCase();draw()};draw()})();
+function draw(){
+document.querySelectorAll('button[data-d]').forEach(b=>b.classList.toggle('on',b.dataset.d===dept));
+document.querySelectorAll('.dept').forEach(b=>b.classList.toggle('on',b.dataset.d===dept));
+const l=T.filter(t=>(dept==='All'||t.dept===dept)&&(stat==='All'||t.status===stat)&&(!q||[t.area,t.scope,t.owner,t.remarks].join(' ').toLowerCase().includes(q)));
+$('rows').innerHTML=l.length?l.map(t=>'<tr><td class="mut">'+t.sr+'</td><td><b>'+esc(t.area)+'</b><br><span class="mut">'+esc(DP.find(p=>p.k===t.dept).n)+'</span></td><td>'+esc(t.scope)+'</td><td><span class="badge b-'+cl(t.status)+'">'+t.status+'</span></td><td>'+esc(t.owner)+'</td><td class="mut">'+esc(t.remarks)+'</td></tr>').join(''):'<tr><td colspan="6" class="mut">No tasks match your filters.</td></tr>'}
+</script></body></html>
